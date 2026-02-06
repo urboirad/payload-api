@@ -6,34 +6,39 @@ app.use(cors());
 app.use(express.json());
 
 // LOGIC
-const convertToTS = (obj, name = "RootObject") => {
-  let interfaces = [];
-  let mainInterface = `interface ${name} {\n`;
-
-  for (const [key, value] of Object.entries(obj)) {
-    if (value === null) {
-      mainInterface += `  ${key}: any; // null value\n`;
-    } else if (Array.isArray(value)) {
-      const typeOfElement = value.length > 0 ? typeof value[0] : 'any';
-      mainInterface += `  ${key}: ${typeOfElement}[];\n`;
-    } else if (typeof value === 'object') {
-      const nestedName = key.charAt(0).toUpperCase() + key.slice(1);
-      mainInterface += `  ${key}: ${nestedName};\n`;
-      interfaces.push(convertToTS(value, nestedName));
-    } else {
-      mainInterface += `  ${key}: ${typeof value};\n`;
+const generateSmartDocs = (key, value) => {
+    const name = key.toLowerCase();
+    if (name.includes('id')) return "Unique identifier";
+    if (name.includes('email')) return "User contact email";
+    if (name.includes('created')) return "ISO 8601 timestamp of creation";
+    if (typeof value === 'boolean') return "Flag indicating state";
+    if (Array.isArray(value)) return `Collection of ${key} items`;
+    return `The ${key} property`;
+  };
+  
+  const convertToTS = (obj, name = "RootObject") => {
+    let interfaces = [];
+    let mainInterface = `/**\n * @interface ${name}\n * Auto-generated documentation\n */\ninterface ${name} {\n`;
+  
+    for (const [key, value] of Object.entries(obj)) {
+      const description = generateSmartDocs(key, value);
+      mainInterface += `  /** ${description} */\n`; // Adds JSDoc comment
+      
+      if (value === null) {
+        mainInterface += `  ${key}: any;\n`;
+      } else if (Array.isArray(value)) {
+        const typeOfElement = value.length > 0 ? typeof value[0] : 'any';
+        mainInterface += `  ${key}: ${typeOfElement}[];\n`;
+      } else if (typeof value === 'object') {
+        const nestedName = key.charAt(0).toUpperCase() + key.slice(1);
+        mainInterface += `  ${key}: ${nestedName};\n`;
+        interfaces.push(convertToTS(value, nestedName));
+      } else {
+        mainInterface += `  ${key}: ${typeof value};\n`;
+      }
     }
-  }
-  mainInterface += `}`;
-  return [...interfaces, mainInterface].join('\n\n');
-};
-
-// "Smart" logic
-const describeField = (key, value) => {
-    if (key.includes('id')) return "Unique identifier for the resource.";
-    if (key.includes('email')) return "Validated user email address.";
-    if (typeof value === 'number') return "Floating point or integer value.";
-    return "General data field.";
+    mainInterface += `}`;
+    return [...interfaces, mainInterface].join('\n\n');
   };
 
 // FOR WIDGET
