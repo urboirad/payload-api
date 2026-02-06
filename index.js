@@ -42,18 +42,40 @@ const generateSmartDocs = (key, value) => {
   };
 
 // FOR WIDGET
-app.post('/api/convert', (req, res) => {
-  try {
-    const { jsonBody } = req.body;
-    if (!jsonBody) {
-      return res.status(400).json({ error: "No JSON provided" });
+app.post('/api/convert-all', (req, res) => {
+    try {
+      const { jsonBody } = req.body;
+      const obj = typeof jsonBody === 'string' ? JSON.parse(jsonBody) : jsonBody;
+  
+      // 1. TypeScript Logic
+      const tsLines = ['interface GeneratedType {'];
+      for (const [key, value] of Object.entries(obj)) {
+        tsLines.push(`  ${key}: ${Array.isArray(value) ? 'any[]' : typeof value};`);
+      }
+      tsLines.push('}');
+  
+      // 2. JSDoc Logic
+      const jsLines = ['/**', ' * @typedef {Object} GeneratedType'];
+      for (const [key, value] of Object.entries(obj)) {
+        jsLines.push(` * @property {${Array.isArray(value) ? 'Array' : typeof value}} ${key}`);
+      }
+      jsLines.push(' */');
+  
+      // 3. Markdown Logic
+      const mdLines = ['| Property | Type | Value |', '|----------|------|-------|'];
+      for (const [key, value] of Object.entries(obj)) {
+        mdLines.push(`| ${key} | ${typeof value} | ${JSON.stringify(value)} |`);
+      }
+  
+      res.json({
+        typescript: tsLines.join('\n'),
+        jsdoc: jsLines.join('\n'),
+        markdown: mdLines.join('\n')
+      });
+    } catch (err) {
+      res.status(400).json({ error: "Invalid JSON" });
     }
-    const result = convertToTS(jsonBody);
-    res.json({ code: result });
-  } catch (err) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+  });
 
 // SERVER STUFF
 const PORT = process.env.PORT || 10000;
