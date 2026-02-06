@@ -28,6 +28,14 @@ const convertToTS = (obj, name = "RootObject") => {
   return [...interfaces, mainInterface].join('\n\n');
 };
 
+// "Smart" logic
+const describeField = (key, value) => {
+    if (key.includes('id')) return "Unique identifier for the resource.";
+    if (key.includes('email')) return "Validated user email address.";
+    if (typeof value === 'number') return "Floating point or integer value.";
+    return "General data field.";
+  };
+
 // FOR WIDGET
 app.post('/api/convert', (req, res) => {
   try {
