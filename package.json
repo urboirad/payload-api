@@ -1,12 +1,22 @@
 {
   "name": "payload-api",
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.1.0",
+  "description": "JSON-to-docs micro-service that generates TypeScript interfaces, JSDoc, and Markdown schema from example payloads.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "dev": "NODE_ENV=development node index.js",
+    "test": "echo \"No automated tests yet\" && exit 0"
   },
-  "keywords": [],
+  "keywords": [
+    "json",
+    "typescript",
+    "jsdoc",
+    "markdown",
+    "schema",
+    "documentation",
+    "microservice"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
