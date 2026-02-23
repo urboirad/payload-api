@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "NODE_ENV=development node index.js",
-    "test": "echo \"No automated tests yet\" && exit 0"
+    "test": "echo \"No automated tests yet\" && exit 0",
+    "cli": "node bin/payload-api.js"
   },
   "keywords": [
     "json",
@@ -20,6 +21,9 @@
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "bin": {
+    "payload-api": "bin/payload-api.js"
+  },
   "dependencies": {
     "cors": "^2.8.6",
     "express": "^5.2.1"
